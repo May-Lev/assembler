@@ -21,9 +21,8 @@ int main(int argc, char *argv[])
 static bool openFile(char *filename)
 {
 	int ic = FIRST_IC, dc=0;
-	int code_img=1, symbol_table=3;
-	struct symbolNode* data_img = NULL;
-
+	int code_img=1, dataImg=3;
+	struct symbolNode* symbolTable = NULL;
 	char *new_filename;
 	FILE *pointer_file;
 	char temp_line[MAX_LINE + 2];
@@ -42,13 +41,13 @@ static bool openFile(char *filename)
 	{
 		if(cheakLine(line ,pointer_file))
 		{
-			if(!readLine(line, &ic, &dc, code_img ,&data_img, symbol_table))
+			if(!readLine(line, &ic, &dc, code_img ,&symbolTable, dataImg))
 				read_file = FALSE;
 		 } 
 		else read_file = FALSE; 
 	}
 	
-	printDataImg(data_img);
+	printSymbolTable(symbolTable);
 	fclose(pointer_file);
 	return read_file;
 }

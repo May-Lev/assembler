@@ -105,19 +105,19 @@ void is_register(char *a_label, int *reg)
 }
 
 
-void addSymbolToDataImg(struct symbolNode** pointerList, char* lable, int DCorIC, char* attr)
+void addSymbolTable(struct symbolNode** symbolTable, char* lable, int DCorIC, char* attr)
 {
 	int i;
 	struct symbolNode* new_node = (struct symbolNode*) malloc(sizeof(struct symbolNode));
-    struct symbolNode *last = *pointerList;
+    struct symbolNode *last = *symbolTable;
 	for(i = 0;i<strlen(lable);i++)
 		new_node->symbol[i] = (char)lable[i];
 	new_node->value = DCorIC;
 	new_node->attribute = attr;
     new_node->next = NULL;
-    if (*pointerList == NULL)
+    if (*symbolTable == NULL)
     {
-       *pointerList = new_node;
+       *symbolTable = new_node;
        return;
     }  
     while (last->next != NULL)
@@ -126,7 +126,7 @@ void addSymbolToDataImg(struct symbolNode** pointerList, char* lable, int DCorIC
     return;   
 }
 
-void printDataImg(void* pointer)
+void printSymbolTable(void* pointer)
 {
 	int i;
 	struct symbolNode *last = pointer;

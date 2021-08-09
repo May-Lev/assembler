@@ -14,8 +14,8 @@ bool is_label(line line , char* label);
 bool check_reserved_word(char *a_label);
 bool isComment(line line, int i);
 void is_register(char *a_label, int *reg);
-void addSymbolToDataImg(struct symbolNode** pointerList, char* label, int DCorIC, char* attr);
-void printDataImg(void* pointer);
+void addSymbolTable(struct symbolNode** symbolTable, char* label, int DCorIC, char* attr);
+void printSymbolTable(void* pointer);
 bool isInt(char *str);
 #endif
 

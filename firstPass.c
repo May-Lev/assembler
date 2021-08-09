@@ -5,7 +5,7 @@
 #include "opcode.h"
 #include "instructions.h"
 bool SymbolFlag = FALSE;
-bool readLine(line line, int *IC, int *DC, int code_img,struct symbolNode** data_img, int symbol_table)
+bool readLine(line line, int *IC, int *DC, int code_img,struct symbolNode** symbolTable, int dataImg)
 {
 	int i =0;
 	char label[MAX_LINE];	
@@ -42,7 +42,7 @@ bool readLine(line line, int *IC, int *DC, int code_img,struct symbolNode** data
 	{
 		/*int op , fun;*/
 		if(SymbolFlag)
-			addSymbolToDataImg(data_img, label, *IC, "code");
+			addSymbolTable(symbolTable, label, *IC, "code");
 		/*is_opcode(line.text, &op ,(funct*)&fun);*//**/
 		/*printf("op %d\n", op);
 		printf("fun %d\n", fun);
@@ -51,9 +51,9 @@ bool readLine(line line, int *IC, int *DC, int code_img,struct symbolNode** data
 	else
 	{
 		/*if(SymbolFlag)חוזר על עצמו?instructHandling כי ב פונקציה גם מכניסים לטבלה
-			addSymbolToDataImg(data_img, label, *DC, "data");*/
+			addSymbolTable(symbolTable, label, *DC, "data");*/
 		/*printf("instruction\n");*/
-		if(!instructHandling(instruction,data_img,label,line,*DC/*גם ic?*/,i))/*return false*/
+		if(!instructHandling(instruction,symbolTable,label,line,*DC/*גם ic?*/,i,dataImg))/*return false*/
 			return FALSE;
 	}
 	

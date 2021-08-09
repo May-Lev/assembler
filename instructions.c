@@ -89,7 +89,7 @@ instruct instructionByIndex(line line, int *i)
 	printError(line.number,"Invalid instruction name: %s", temp);
 	return ERROR_INS;
 }
-bool instructHandling(instruct instruction,struct symbolNode** pointerList, char* label, line line,int DC,int i)
+bool instructHandling(instruct instruction,struct symbolNode** symbolTable, char* label, line line,int DC,int i,int dataImg)
 {
 	bool result = TRUE;
 	int bytes;
@@ -97,14 +97,14 @@ bool instructHandling(instruct instruction,struct symbolNode** pointerList, char
 	if(instruction == DB_INS || instruction == DH_INS ||instruction == DW_INS)
 	{
 		if(label[0] != '\0')
-				addSymbolToDataImg(pointerList, label, DC, "data");
+				addSymbolTable(symbolTable, label, DC, "data");
 		if(instruction == DB_INS)
 			bytes = 1;
 		if(instruction == DH_INS)
 			bytes = 2;
 		if(instruction == DW_INS)
 			bytes = 4;
-		DbDhDwinstruct(line, i, pointerList, DC/**/,bytes);
+		DbDhDwinstruct(line, i, dataImg, DC/**/,bytes);
 	}
 	
 	switch(instruction)
@@ -135,7 +135,7 @@ bool instructHandling(instruct instruction,struct symbolNode** pointerList, char
 		case EXTERN_INS:
 		{
 		/**/
-			addSymbolToDataImg(pointerList, label, 0, "extern");
+			addSymbolTable(symbolTable, label, 0, "extern");
       		break;
 		}
 		case NONE_INS:
@@ -149,7 +149,7 @@ bool instructHandling(instruct instruction,struct symbolNode** pointerList, char
 	}
 	return result;
 }
-bool DbDhDwinstruct(line line, int i,struct symbolNode** pointerList, int DC,int bytes)
+bool DbDhDwinstruct(line line, int i,/*struct symbolNode***/int dataImg, int DC,int bytes)
 {
 
 	char temp[80], *temp_ptr;
@@ -177,7 +177,7 @@ bool DbDhDwinstruct(line line, int i,struct symbolNode** pointerList, int DC,int
 		}
 		value = strtol(temp, &temp_ptr, 10);
 		printf("%ld\n",value);
-		/*pointerList[*DC] = value;
+		/*dataImg[*DC] = value;
 		(DC)++;*/
 		SKIP_WHITE_SPACE(line.text, i)
 		if (line.text[i] == ',')
