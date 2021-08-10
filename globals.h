@@ -8,23 +8,25 @@ typedef enum booleans
 #define FIRST_IC 100
 #define MAX_LINE 80 
 #define NONE_REG -1
+
+#define DB_BYTES 1
+#define DH_BYTES 2
+#define DW_BYTES 4
+#define CODE_ARR_IMG_LENGTH 1500
 typedef struct line {
-	/** Line number in file */
+	/* Line number */
 	int number;
-	/** Line content (source) */
+	/* Line content */
 	char *text;
 } line;
 
-/* Commands opcode */
 typedef enum opcode {
 	/* R Group */
-	/*R-0*/
 	ADD_OP = 0,
 	SUB_OP = 0,
 	AND_OP = 0,
 	OR_OP = 0,
 	NOR_OP = 0,
-	/*R-1*/
 	MOVE_OP = 1,
 	MVHI_OP = 1,
 	MVLO_OP = 1,
@@ -52,7 +54,7 @@ typedef enum opcode {
 	CALL_OP = 32,
 	STOP_OP = 63,
 	
-/* Failed/Error */
+	/* Failed/Error */
 	NONE_OP = -1
 } opcode;
 
@@ -74,19 +76,17 @@ typedef enum funct {
 	NONE_FUNCT = 0
 } funct;
 
-typedef enum instruct
+typedef enum guide
 {
-	DB_INS = 1,
-	DH_INS = 2,
-	DW_INS = 3,
-	ASCIZ_INS = 4,
-	ENTRY_INS = 5,
-	EXTERN_INS = 6,
-	ERROR_INS = -1,
-	NONE_INS = 0	
-}instruct;
-
-
+	DB_GUIDE = 1,
+	DH_GUIDE = 2,
+	DW_GUIDE = 3,
+	ASCIZ_GUIDE = 4,
+	ENTRY_GUIDE = 5,
+	EXTERN_GUIDE = 6,
+	ERROR_GUIDE = -1,
+	NONE_GUIDE = 0	
+}guide;
 
 struct symbolNode
 {
@@ -95,15 +95,6 @@ struct symbolNode
 	char* attribute;
     struct symbolNode* next;
 }symbolNode;
-/*
-  Represents a single source line, including it's details
- */
-/*typedef struct line_field {
-	long line_num;num of line in the File
-	char *file_name;name of file
-	char *content;the content of line
-} line_field;*/
-
 
 
 

@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include "helpFuncs.h"
 #include "opcode.h" 
-#include "instructions.h"
+#include "guidances.h"
 #include "globals.h" 
 #define ERR_OUTPUT_FILE stderr
 extern bool SymbolFlag;
@@ -89,11 +89,11 @@ bool check_digit_alpha(char *str)
 
 bool check_reserved_word(char *a_label)
 {
-	int op , fun , ins, reg;
+	int op , fun , gud, reg;
 	is_opcode(a_label, &op ,(funct*)&fun);
-	is_instruction(a_label, ((instruct*)&ins));
+	is_guidance(a_label, ((guide*)&gud));
 	is_register(a_label, &reg);
-	if ((op != NONE_OP ) || (ins != NONE_INS) || (reg != NONE_REG))/*is register?*/
+	if ((op != NONE_OP ) || (gud != NONE_GUIDE) || (reg != NONE_REG))/*is register?*/
 		return TRUE;
 
 	return FALSE;
@@ -109,7 +109,8 @@ void addSymbolTable(struct symbolNode** symbolTable, char* lable, int DCorIC, ch
 {
 	int i;
 	struct symbolNode* new_node = (struct symbolNode*) malloc(sizeof(struct symbolNode));
-    struct symbolNode *last = *symbolTable;
+    	struct symbolNode *last = *symbolTable;
+	/*printf("%s",lable);*/
 	for(i = 0;i<strlen(lable);i++)
 		new_node->symbol[i] = (char)lable[i];
 	new_node->value = DCorIC;
@@ -132,7 +133,7 @@ void printSymbolTable(void* pointer)
 	struct symbolNode *last = pointer;
 	while (last != NULL)
 	{
-		for(i = 0;i<strlen(last->symbol);i++)
+		for(i = 0; i<strlen(last->symbol); i++)
 			printf("%c", last->symbol[i]);
 		printf(" %d ", last->value);
 		printf(" %s\n ", last->attribute);

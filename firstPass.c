@@ -3,19 +3,20 @@
 #include "firstPass.h"
 #include "helpFuncs.h"
 #include "opcode.h"
+#include "guidances.h"
 #include "instructions.h"
+#include "dataCodeImages.h"
 bool SymbolFlag = FALSE;
-bool readLine(line line, int *IC, int *DC, int code_img,struct symbolNode** symbolTable, int dataImg)
+bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode** symbolTable, dataImage** dataImg)
 {
-	int i =0;
+	int i = 0;
 	char label[MAX_LINE];	
-	instruct instruction;
+	guide guidance;
 	SymbolFlag = FALSE;
-	
 	SKIP_WHITE_SPACE(line.text , i)
-    if(isComment(line , i))/*empty orv comment line*/
+    if(isComment(line , i))
 	{
-			/*printf("comment\n");*/
+		                                          /*printf("empty or comment\n");*/
 		return TRUE;
 	}
     if(is_label(line,label))
@@ -28,32 +29,44 @@ bool readLine(line line, int *IC, int *DC, int code_img,struct symbolNode** symb
 	if (label[0] != '\0')
 	{
 		SymbolFlag = TRUE;
-		/*printf("label ");*/
-		for (; line.text[i] != ':'; i++); /* if symbol detected, start analyzing from it's deceleration end */
-		i++;
+									         	/*printf("label ");*/
+		for (; line.text[i] != ':'; i++); /* Continue with text after the symbol */
+			i++;
 	}
 	SKIP_WHITE_SPACE(line.text, i)
 	if (line.text[i] == '\n')
-		return TRUE; /* Label-only line - skip */
-	/* Check if it's an instruction (starting with '.') */
-	instruction = instructionByIndex(line, &i);
+		return TRUE;
+		
+	/* Check if it's an guidance (starting with '.') */
+	guidance = guidanceByIndex(line, &i);
 	SKIP_WHITE_SPACE(line.text, i)
-	if(instruction == NONE_INS)/* or in the instructHandling func*/
-	{
-		/*int op , fun;*/
+	if(guidance == NONE_GUIDE)                 /* instructions */
+	{/* or in the guideHandling func*/
+		int op , fun, j;
+		char instructName[5];
 		if(SymbolFlag)
 			addSymbolTable(symbolTable, label, *IC, "code");
-		/*is_opcode(line.text, &op ,(funct*)&fun);*//**/
+		for (j = 0; line.text[i] && line.text[i] != '\t' && line.text[i] != ' ' && line.text[i] != '\n' && line.text[i] != EOF && j < 6; i++, j++)
+		{
+			instructName[j] = line.text[i];
+		}
+		instructName[j] = '\0';
+		is_opcode(instructName, &op ,(funct*)&fun);
+		addToCodeImg(IC,line.text);
+		if(!instructHandling(instructName,line,*IC/*גם dc?*/,i,codeImg,&op ,(funct*)&fun))
+			return FALSE;/**/
 		/*printf("op %d\n", op);
 		printf("fun %d\n", fun);
-		printf("horaa\n");*/
+		printf("'%s'\n",instructName);*/
 	}
 	else
 	{
-		/*if(SymbolFlag)חוזר על עצמו?instructHandling כי ב פונקציה גם מכניסים לטבלה
+													/*printf("guidance\n");*/
+		addToDataImg(DC,line.text);
+		/*if(SymbolFlag)חוזר על עצמו?guideHandling כי ב פונקציה גם מכניסים לטבלה
 			addSymbolTable(symbolTable, label, *DC, "data");*/
-		/*printf("instruction\n");*/
-		if(!instructHandling(instruction,symbolTable,label,line,*DC/*גם ic?*/,i,dataImg))/*return false*/
+		
+		if(!guideHandling(guidance,symbolTable,label,line,*DC/*גם ic?*/,i,dataImg))/*return false*/
 			return FALSE;
 	}
 	
