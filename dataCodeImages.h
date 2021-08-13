@@ -45,15 +45,34 @@ typedef struct codeImage
 	} word;
 }codeImage;
 
+
+/*typedef struct dataBin8
+{
+	unsigned int number:8;
+}dataBin8;
+typedef struct dataBin32
+{
+	unsigned int number:32;
+}dataBin32;
+typedef struct dataBin16
+{
+	unsigned int number:16;
+}dataBin16;*/
 typedef struct dataImage
 {
-	int adress;	
+	int adress;
+	char lineText[MAX_LINE];
+	unsigned int bin8:1;
+		/*dataBin32 *bin32;
+		dataBin16 *bin16;*/
+	struct dataImage* next;
 }dataImage;
 
 
-void addToDataImg(int* DC, char* line);
+void addToDataImg(int *DC, char* line, int bytes,struct dataImage** dataImg);
+void updateDataTable(void* dataImg, int DCorIC);
 void addToCodeImg(int* IC, char* line);
-
+void printDataTable(void* pointer);
 #endif
 
 

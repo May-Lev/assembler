@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef HELP_FUNCS_H
+#define HELP_FUNCS_H
 #include "globals.h"
 #define SKIP_WHITE_SPACE(string, index) \
         for (;string[(index)] && (string[(index)] == '\t' || string[(index)] == ' '); (++(index)))\
@@ -14,8 +14,6 @@ bool is_label(line line , char* label);
 bool check_reserved_word(char *a_label);
 bool isComment(line line, int i);
 void is_register(char *a_label, int *reg);
-void addSymbolTable(struct symbolNode** symbolTable, char* label, int DCorIC, char* attr);
-void printSymbolTable(void* pointer);
 bool isInt(char *str);
 #endif
 

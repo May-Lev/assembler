@@ -8,7 +8,6 @@
 #include "guidances.h"
 #include "globals.h" 
 #define ERR_OUTPUT_FILE stderr
-extern bool SymbolFlag;
 int printError(int lineNum, char* error, ...)
 {
 	int out;
@@ -102,43 +101,6 @@ void is_register(char *a_label, int *reg)
 {
 /*get_register_by_name*/
 	*reg = NONE_REG;
-}
-
-
-void addSymbolTable(struct symbolNode** symbolTable, char* lable, int DCorIC, char* attr)
-{
-	int i;
-	struct symbolNode* new_node = (struct symbolNode*) malloc(sizeof(struct symbolNode));
-    	struct symbolNode *last = *symbolTable;
-	/*printf("%s",lable);*/
-	for(i = 0;i<strlen(lable);i++)
-		new_node->symbol[i] = (char)lable[i];
-	new_node->value = DCorIC;
-	new_node->attribute = attr;
-    new_node->next = NULL;
-    if (*symbolTable == NULL)
-    {
-       *symbolTable = new_node;
-       return;
-    }  
-    while (last->next != NULL)
-        last = last->next;
-    last->next = new_node;
-    return;   
-}
-
-void printSymbolTable(void* pointer)
-{
-	int i;
-	struct symbolNode *last = pointer;
-	while (last != NULL)
-	{
-		for(i = 0; i<strlen(last->symbol); i++)
-			printf("%c", last->symbol[i]);
-		printf(" %d ", last->value);
-		printf(" %s\n ", last->attribute);
-		last = last->next;
-	}
 }
 
 bool isInt(char *str)

@@ -7,7 +7,7 @@
 #include "instructions.h"
 #include "dataCodeImages.h"
 bool SymbolFlag = FALSE;
-bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode** symbolTable, dataImage** dataImg)
+bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode** symbolTable,dataImage** dataImg)
 {
 	int i = 0;
 	char label[MAX_LINE];	
@@ -15,10 +15,8 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	SymbolFlag = FALSE;
 	SKIP_WHITE_SPACE(line.text , i)
     if(isComment(line , i))
-	{
-		                                          /*printf("empty or comment\n");*/
+                            /*printf("empty or comment\n");*/
 		return TRUE;
-	}
     if(is_label(line,label))
 	    return FALSE;
 	if (label[0] && !valid_label(label))
@@ -40,34 +38,30 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	/* Check if it's an guidance (starting with '.') */
 	guidance = guidanceByIndex(line, &i);
 	SKIP_WHITE_SPACE(line.text, i)
-	if(guidance == NONE_GUIDE)                 /* instructions */
+	if(guidance != NONE_GUIDE)        	    /*printf("guidance\n");*/    
+	{	
+		if(SymbolFlag && guidance != EXTERN_GUIDE)
+			addSymbolTable(symbolTable, label, *DC, "data");
+		/*addToDataImg(DC,line.text);*/
+		return (guideHandling(guidance,symbolTable,label,line,DC/*גם ic?*/,i,dataImg));
+	}
+	else
 	{/* or in the guideHandling func*/
+								 /* instructions */
 		int op , fun, j;
 		char instructName[5];
 		if(SymbolFlag)
 			addSymbolTable(symbolTable, label, *IC, "code");
-		for (j = 0; line.text[i] && line.text[i] != '\t' && line.text[i] != ' ' && line.text[i] != '\n' && line.text[i] != EOF && j < 6; i++, j++)
+		/*making string instructName*/
+		for (j = 0; line.text[i] && line.text[i] != '\t' && line.text[i] != ' ' &&
+			 line.text[i] != '\n' && line.text[i] != EOF && j < 6; i++, j++)
 		{
 			instructName[j] = line.text[i];
 		}
 		instructName[j] = '\0';
 		is_opcode(instructName, &op ,(funct*)&fun);
 		addToCodeImg(IC,line.text);
-		if(!instructHandling(instructName,line,*IC/*גם dc?*/,i,codeImg,&op ,(funct*)&fun))
-			return FALSE;/**/
-		/*printf("op %d\n", op);
-		printf("fun %d\n", fun);
-		printf("'%s'\n",instructName);*/
-	}
-	else
-	{
-													/*printf("guidance\n");*/
-		addToDataImg(DC,line.text);
-		/*if(SymbolFlag)חוזר על עצמו?guideHandling כי ב פונקציה גם מכניסים לטבלה
-			addSymbolTable(symbolTable, label, *DC, "data");*/
-		
-		if(!guideHandling(guidance,symbolTable,label,line,*DC/*גם ic?*/,i,dataImg))/*return false*/
-			return FALSE;
+		return(instructHandling(instructName,line,*IC/*גם dc?*/,i,codeImg,&op ,(funct*)&fun));
 	}
 	
 	return TRUE; /**/

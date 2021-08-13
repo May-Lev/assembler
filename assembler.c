@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "helpFuncs.h"
+#include "symbolTable.h"
 #include "firstPass.h"
 bool cheakLine();
 static bool openFile(char *filename);
@@ -20,11 +21,9 @@ int main(int argc, char *argv[])
 
 static bool openFile(char *filename)
 {
-	int ic = FIRST_IC, dc=0;
-
+	int ic = FIRST_IC, dc=0,icf,dcf;
 	dataImage* dataImg = NULL;
 	codeImage* codeImg[CODE_ARR_IMG_LENGTH];
-
 	struct symbolNode* symbolTable = NULL;
 	char *new_filename;
 	FILE *pointer_file;
@@ -45,12 +44,30 @@ static bool openFile(char *filename)
 		if(cheakLine(line ,pointer_file))
 		{
 			if(!readLine(line, &ic, &dc, codeImg ,&symbolTable, &dataImg))
+			{
 				read_file = FALSE;
+				/*icf = -1;*/
+			}
 		 } 
-		else read_file = FALSE; 
+		else
+			read_file = FALSE;
 	}
-	
-	/*printSymbolTable(symbolTable);*/
+
+	icf = ic;
+	dcf = dc;
+	/* if first pass didn't fail, start the second pass */
+	if (read_file)
+	{
+		ic = FIRST_IC;
+		/* Now let's add IC to each DC for each of the data symbols in table (step 1.19) */
+		updateSymbolTable(symbolTable, icf, "data");
+		updateDataTable(dataImg, icf);
+		/*printSymbolTable(symbolTable);
+		printDataTable(dataImg);*/
+		/* start second pass: */
+		rewind(pointer_file); /* Start from beginning of file again */
+
+	}
 	fclose(pointer_file);
 	return read_file;
 }

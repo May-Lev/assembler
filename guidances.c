@@ -4,7 +4,7 @@
 #include "helpFuncs.h"
 #include "guidances.h"
 #include "globals.h"
-
+#include "symbolTable.h"
 
 
 
@@ -75,13 +75,10 @@ guide guidanceByIndex(line line, int *i)
 	printError(line.number,"Invalid guidance name: %s", temp);
 	return ERROR_GUIDE;
 }
-bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, line line,int DC,int i,dataImage** dataImg)
+bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, line line,int *DC,int i,dataImage** dataImg)
 {
 	bool result = TRUE;
 	int bytes;
-	if(label[0] != '\0')
-			addSymbolTable(symbolTable, label, DC, "data");
-	/*NONE_GUIDE = 0*/	
 	if(guidance == DB_GUIDE || guidance == DH_GUIDE ||guidance == DW_GUIDE)
 	{
 		if(guidance == DB_GUIDE)
@@ -90,55 +87,73 @@ bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, 
 			bytes = DH_BYTES;
 		if(guidance == DW_GUIDE)
 			bytes = DW_BYTES;
-		DbDhDwguide(line, i, dataImg, DC/**/,bytes);
+		result = DbDhDwguide(line, i, dataImg, DC/**/,bytes);
 	}
-	
-	switch(guidance)
+	if(guidance == ENTRY_GUIDE)
 	{
-    	case DB_GUIDE:
-		{
-      		break;
-		}
-		case DH_GUIDE:
-		{
-      		break;
-		}
-		case DW_GUIDE:
-		{
-      		break;
-		}
-		case ASCIZ_GUIDE:
-		{
-      		break;
-		}
-		case ENTRY_GUIDE:
-		{
 			if(label[0] != '\0')
-			printError(line.number, "Can't define a label to an entry guidance.");
-			result = FALSE;
-      		break;
-		}
-		case EXTERN_GUIDE:
-		{
-		/**/
-			addSymbolTable(symbolTable, &line.text[i], 0, "external");
-      		break;
-		}
-		case NONE_GUIDE:
-		case ERROR_GUIDE:
-		{
-			result = FALSE;
-      		break;
-		}
-
-
+			{
+				printError(line.number, "Can't define a label to an entry guidance.");
+				result = FALSE; /**/
+			}
+			else
+				result = TRUE;
+     }
+	else if(guidance == EXTERN_GUIDE)
+	{
+		/*לבדוק אם יש תוית בכלל?*/
+		addSymbolTable(symbolTable, &line.text[i], 0, "external");
 	}
+	else if(guidance == ASCIZ_GUIDE)
+	{
+		result = Ascizguide(line, i, dataImg, DC);
+	}
+	else if(guidance == ERROR_GUIDE)
+		result = FALSE;
+	/*if(result)
+		addToDataImg(&DC,line.text);*/
 	return result;
 }
-bool DbDhDwguide(line line, int i,dataImage** dataImg, int DC,int bytes)
+bool Ascizguide(line line, int i,dataImage** dataImg, int *DC)
+{
+	char temp_str[80];
+	char *last = strrchr(line.text, '"');
+	SKIP_WHITE_SPACE(line.text, i)
+	if (line.text[i] != '"')
+	{
+		printError(line.number, "Missing opening quote of string");
+		return FALSE;
+	} 
+	else if (&line.text[i] == last)
+	{ 
+		printError(line.number, "Missing closing quote of string");
+		return FALSE;
+	} 
+	else
+	{
+		int j;
+		for (j = 0;line.text[i] && line.text[i] != '\n' &&
+		       line.text[i] != EOF; i++,j++)
+		{
+				temp_str[j] = line.text[i];
+		}
+		temp_str[last - line.text] = '\0';
+		for(j = 1;temp_str[j] && temp_str[j] != '"'; j++)
+		{
+			/*dataImg[*DC] = temp_str[j];*/
+			addToDataImg(DC,line.text,-1,dataImg);
+			(*DC)++;
+		}
+		/*dataImg[*DC] = '\0';*/
+		addToDataImg(DC,line.text,-1,dataImg);
+		(*DC)++;
+	}
+	return TRUE;
+}
+bool DbDhDwguide(line line, int i,dataImage** dataImg, int *DC,int bytes)
 {
 
-	char temp[80], *temp_ptr;
+	char temp[80]/*, *temp_ptr*/;
 	/*long value;*/
 	int j;
 	SKIP_WHITE_SPACE(line.text, i)
@@ -146,7 +161,7 @@ bool DbDhDwguide(line line, int i,dataImage** dataImg, int DC,int bytes)
 	{
 		printError(line.number, "Unexpected comma after guidance");
 		/*return FALSE;*/ /*למה אין*/
-		}
+	}
 	do {
 		for (j = 0;
 		     line.text[i] && line.text[i] != EOF && line.text[i] != '\t' &&
@@ -163,7 +178,8 @@ bool DbDhDwguide(line line, int i,dataImage** dataImg, int DC,int bytes)
 		}
 		/*value = strtol(temp, &temp_ptr, 10);
 		dataImg[DC] = value;*/
-		(DC)++;
+		addToDataImg(DC,line.text,bytes,dataImg);
+		(*DC)+=bytes;
 		SKIP_WHITE_SPACE(line.text, i)
 		if (line.text[i] == ',')
 			i++;
