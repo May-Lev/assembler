@@ -76,13 +76,14 @@ static bool openFile(char *filename)
 bool cheakLine(line line, FILE * pointer_file)
 { 
 	int temp_c;
+	bool result = TRUE;
 	if (strchr(line.text, '\n') == NULL && !feof(pointer_file))
 	{
 		printError(line.number, "Line too long to process. Maximum line length should be %d.",MAX_LINE);
-		return FALSE;
+		result =  FALSE;
 		do {
 			temp_c = fgetc(pointer_file);
 		} while (temp_c != '\n' && temp_c != EOF);
 	}
-	return TRUE;
+	return result;
 }

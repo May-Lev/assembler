@@ -13,14 +13,17 @@ typedef enum booleans
 #define DH_BYTES 2
 #define DW_BYTES 4
 #define CODE_ARR_IMG_LENGTH 1500
-typedef struct line {
-	/* Line number */
+#define MAX_OPERANDS_INST 3
+#define INST_MAX_LEN 5
+/* Line number and content*/
+typedef struct line
+{
 	int number;
-	/* Line content */
 	char *text;
 } line;
 
-typedef enum opcode {
+typedef enum opcode
+{
 	/* R Group */
 	ADD_OP = 0,
 	SUB_OP = 0,
@@ -59,7 +62,8 @@ typedef enum opcode {
 } opcode;
 
 /* by func */
-typedef enum funct {
+typedef enum funct
+{
 	/* OPCODE 0 */
 	ADD_FUNCT = 1,
 	SUB_FUNCT = 2,
@@ -93,7 +97,7 @@ struct symbolNode
 	char symbol[MAX_LINE];	
 	int value;
 	char* attribute;
-    struct symbolNode* next;
+    	struct symbolNode* next;
 }symbolNode;
 
 

@@ -7,7 +7,6 @@
 #include "symbolTable.h"
 
 
-
 struct guideFindTable
 {
 	char *name;
@@ -25,10 +24,6 @@ static struct guideFindTable
 };
 
 
-
-
-
-
 guide guidanceByName(char *name)
 {
 	struct guideFindTable *curr_item;
@@ -40,9 +35,6 @@ guide guidanceByName(char *name)
 	return NONE_GUIDE;
 }
 
-
-
-/*check if the word is guidance*/
 void is_guidance(char *name, guide *get_guide)
 {
 	struct guideFindTable *b;
@@ -91,13 +83,13 @@ bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, 
 	}
 	if(guidance == ENTRY_GUIDE)
 	{
-			if(label[0] != '\0')
-			{
-				printError(line.number, "Can't define a label to an entry guidance.");
-				result = FALSE; /**/
-			}
-			else
-				result = TRUE;
+		if(label[0] != '\0')
+		{
+			printError(line.number, "Can't define a label to an entry guidance.");
+			result = FALSE; /**/
+		}
+		else
+			result = TRUE;
      }
 	else if(guidance == EXTERN_GUIDE)
 	{
@@ -120,15 +112,9 @@ bool Ascizguide(line line, int i,dataImage** dataImg, int *DC)
 	char *last = strrchr(line.text, '"');
 	SKIP_WHITE_SPACE(line.text, i)
 	if (line.text[i] != '"')
-	{
-		printError(line.number, "Missing opening quote of string");
-		return FALSE;
-	} 
+		return printError(line.number, "Missing opening quote of string");
 	else if (&line.text[i] == last)
-	{ 
-		printError(line.number, "Missing closing quote of string");
-		return FALSE;
-	} 
+		return printError(line.number, "Missing closing quote of string");
 	else
 	{
 		int j;
@@ -172,10 +158,7 @@ bool DbDhDwguide(line line, int i,dataImage** dataImg, int *DC,int bytes)
 		}
 		temp[j] = '\0';
 		if (!isInt(temp))
-		{
-			printError(line.number, "Expected integer for guidance (got '%s')", temp);
-			return FALSE;
-		}
+			return printError(line.number, "Expected integer for guidance (got '%s')", temp);
 		/*value = strtol(temp, &temp_ptr, 10);
 		dataImg[DC] = value;*/
 		addToDataImg(DC,line.text,bytes,dataImg);
@@ -188,12 +171,11 @@ bool DbDhDwguide(line line, int i,dataImage** dataImg, int *DC,int bytes)
 		SKIP_WHITE_SPACE(line.text, i)
 		if (line.text[i] == ',')
 		{
-			printError(line.number, "Multiple consecutive commas.");
-			return FALSE;
-		} else if (line.text[i] == EOF || line.text[i] == '\n' || !line.text[i]) {
-			printError(line.number, "Missing data after comma");
-			return FALSE;
-		}
+			return printError(line.number, "Multiple consecutive commas.");
+		} 
+		else if (line.text[i] == EOF || line.text[i] == '\n' || !line.text[i])
+			return printError(line.number, "Missing data after comma");
+			
 	} while (line.text[i] != '\n' && line.text[i] != EOF);
 	return TRUE;
 }

@@ -22,8 +22,7 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	    return FALSE;
 	if (label[0] && !valid_label(label))
 	{
-		printError(line.number,"Illegal label name: %s", label);
-		return FALSE;
+		return printError(line.number,"Illegal label name: %s", label);
 	}
 	if (label[0] != '\0')
 	{
@@ -50,13 +49,13 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	{/* or in the guideHandling func*/
 								 /* instructions */
 		int op , fun, j,operandCount = 0;
-		char instructName[5];
-		char* operands[3];
+		char instructName[INST_MAX_LEN];
+		char* operands[MAX_OPERANDS_INST];
 		if(SymbolFlag)/*in instructHandling?*/
 			addSymbolTable(symbolTable, label, *IC, "code");
 		/*making string instructName*/
 		for (j = 0; line.text[i] && line.text[i] != '\t' && line.text[i] != ' ' &&
-			 line.text[i] != '\n' && line.text[i] != EOF && j < 6; i++, j++)
+			 line.text[i] != '\n' && line.text[i] != EOF && j < (INST_MAX_LEN+1); i++, j++)
 		{
 			instructName[j] = line.text[i];
 		}
