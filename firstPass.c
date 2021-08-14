@@ -6,6 +6,7 @@
 #include "guidances.h"
 #include "instructions.h"
 #include "dataCodeImages.h"
+#include "symbolTable.h"
 bool SymbolFlag = FALSE;
 bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode** symbolTable,dataImage** dataImg)
 {
@@ -48,9 +49,10 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	else
 	{/* or in the guideHandling func*/
 								 /* instructions */
-		int op , fun, j;
+		int op , fun, j,operandCount = 0;
 		char instructName[5];
-		if(SymbolFlag)
+		char* operands[3];
+		if(SymbolFlag)/*in instructHandling?*/
 			addSymbolTable(symbolTable, label, *IC, "code");
 		/*making string instructName*/
 		for (j = 0; line.text[i] && line.text[i] != '\t' && line.text[i] != ' ' &&
@@ -60,8 +62,10 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 		}
 		instructName[j] = '\0';
 		is_opcode(instructName, &op ,(funct*)&fun);
-		addToCodeImg(IC,line.text);
-		return(instructHandling(instructName,line,*IC/*גם dc?*/,i,codeImg,&op ,(funct*)&fun));
+		if (!operandsCheck(line, i, operands, &operandCount, instructName))
+			return FALSE;
+		/*addToCodeImg(IC,line.text);*/
+		return(instructHandling(instructName,line,IC,i,codeImg,&op ,(funct*)&fun,operands));
 	}
 	
 	return TRUE; /**/

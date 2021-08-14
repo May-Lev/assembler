@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
 static bool openFile(char *filename)
 {
-	int ic = FIRST_IC, dc=0,icf,dcf;
+	int ic = FIRST_IC, dc=0,icf/*,dcf*/;
 	dataImage* dataImg = NULL;
 	codeImage* codeImg[CODE_ARR_IMG_LENGTH];
 	struct symbolNode* symbolTable = NULL;
@@ -54,7 +54,7 @@ static bool openFile(char *filename)
 	}
 
 	icf = ic;
-	dcf = dc;
+	/*dcf = dc;*/
 	/* if first pass didn't fail, start the second pass */
 	if (read_file)
 	{
@@ -62,8 +62,9 @@ static bool openFile(char *filename)
 		/* Now let's add IC to each DC for each of the data symbols in table (step 1.19) */
 		updateSymbolTable(symbolTable, icf, "data");
 		updateDataTable(dataImg, icf);
-		/*printSymbolTable(symbolTable);
-		printDataTable(dataImg);*/
+		/*printSymbolTable(symbolTable);*/
+		/*printCodeTable(codeImg,icf);*/
+		/*printDataTable(dataImg);*/
 		/* start second pass: */
 		rewind(pointer_file); /* Start from beginning of file again */
 
@@ -79,7 +80,6 @@ bool cheakLine(line line, FILE * pointer_file)
 	{
 		printError(line.number, "Line too long to process. Maximum line length should be %d.",MAX_LINE);
 		return FALSE;
-			/* skip leftovers */
 		do {
 			temp_c = fgetc(pointer_file);
 		} while (temp_c != '\n' && temp_c != EOF);

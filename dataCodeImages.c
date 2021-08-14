@@ -33,14 +33,17 @@ void updateDataTable(void* dataImg, int DCorIC)
 	for (currNode = dataImg; currNode != NULL; currNode = currNode->next)
 			currNode->adress += DCorIC;
 }
-void addToCodeImg(int *IC, char* line)
+
+void addToCodeImg(int *IC, char* line,struct codeImage** codeImg)
 {
-	printf("rrrrr %d",*IC);
-	*IC+=4;
+	int i;
+	struct codeImage* new_node = (struct codeImage*) malloc(sizeof(struct codeImage));
+	for(i = 0;i<strlen(line);i++)
+		new_node->lineText[i] = (char)line[i];
+	new_node->adress = *IC;
+	codeImg[*IC] = new_node;
+	(*IC)+=4;
 }
-
-
-
 
 void printDataTable(void* pointer)
 {
@@ -55,5 +58,16 @@ void printDataTable(void* pointer)
 		printf(" %d ", currNode->bin8);
 		currNode = currNode->next;
 	}
+}
+void printCodeTable(struct codeImage** codeImg, int IC)
+{
+	int i,j;
+	for(i = FIRST_IC;i<IC;i+=4)
+	{
+		printf("%d ",codeImg[i]->adress);
+		for(j = 0; j<strlen(codeImg[i]->lineText); j++)
+			printf("%c", codeImg[i]->lineText[j]);
+	}
+	
 }
 

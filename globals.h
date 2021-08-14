@@ -8,7 +8,7 @@ typedef enum booleans
 #define FIRST_IC 100
 #define MAX_LINE 80 
 #define NONE_REG -1
-
+#define MAX_REG_NUM 31
 #define DB_BYTES 1
 #define DH_BYTES 2
 #define DW_BYTES 4

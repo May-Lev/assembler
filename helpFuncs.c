@@ -8,16 +8,15 @@
 #include "guidances.h"
 #include "globals.h" 
 #define ERR_OUTPUT_FILE stderr
-int printError(int lineNum, char* error, ...)
+bool printError(int lineNum, char* error, ...)
 {
-	int out;
 	va_list args; 
 	fprintf(stdout,"Error in line %d: ",lineNum);
 	va_start(args, error);
-	out = vfprintf(stdout, error,args);
+	vfprintf(stdout, error,args);
 	va_end(args);
 	fprintf(stdout, "\n");
-	return out;
+	return FALSE;
 
 
 }
@@ -116,7 +115,61 @@ bool isInt(char *str)
 	return i > 0;
 }
 
-
-
+bool operandsCheck(line line, int i, char **operands, int *operandCount, char *instructName)
+{
+	int j;
+	int k;
+	*operandCount = 0;
+	operands[0] = operands[1] = operands[2] = "";
+	SKIP_WHITE_SPACE(line.text, i)
+	if (line.text[i] == ',')
+	{
+		printError(line.number, "Unexpected comma after command.");
+		return FALSE;
+	}
+	for (*operandCount = 0; line.text[i] != EOF && line.text[i] != '\n' && line.text[i];)
+	{
+		if (*operandCount == 3)
+		{
+			printError(line.number, "Too many operands for operation (got >%d)", *operandCount);
+			free(operands[0]);
+			free(operands[1]);
+			free(operands[2]);
+			return FALSE;
+		}
+		operands[*operandCount] = check_malloc(MAX_LINE);
+		for (j = 0; line.text[i] && line.text[i] != '\t' && line.text[i] != ' ' && line.text[i] != '\n' && line.text[i] != EOF &&  line.text[i] != ','; i++, j++)
+		{
+			operands[*operandCount][j] = line.text[i];
+		}
+		operands[*operandCount][j] = '\0';
+		(*operandCount)++;
+		SKIP_WHITE_SPACE(line.text, i)
+		if (line.text[i] == '\n' || line.text[i] == EOF || !line.text[i])
+			break;
+		else if (line.text[i] != ',')
+		{
+			printError(line.number, "Expecting ',' between operands");
+			for(k = 0; k < *operandCount ; k++)
+				free(operands[k]);
+			return FALSE;
+		}
+		i++;
+		SKIP_WHITE_SPACE(line.text, i)
+		if (line.text[i] == '\n' || line.text[i] == EOF || !line.text[i])
+			printError(line.number, "Missing operand after comma.");
+		else if (line.text[i] == ',')
+			printError(line.number, "Multiple consecutive commas.");
+		else continue; 
+		{ 
+			for(k = 0; k < *operandCount ; k++)
+			{
+				free(operands[k]);
+			}
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
 
 

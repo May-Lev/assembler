@@ -35,7 +35,7 @@ typedef struct codeBinJ
 typedef struct codeImage
 {
 	int adress;	
-	line line;
+	char lineText[MAX_LINE];
 	char* attribute;
     union {
 		codeBinR *binR;
@@ -71,8 +71,9 @@ typedef struct dataImage
 
 void addToDataImg(int *DC, char* line, int bytes,struct dataImage** dataImg);
 void updateDataTable(void* dataImg, int DCorIC);
-void addToCodeImg(int* IC, char* line);
+void addToCodeImg(int *IC, char* line,struct codeImage** codeImg);
 void printDataTable(void* pointer);
+void printCodeTable(struct codeImage** codeImg, int IC);
 #endif
 
 
