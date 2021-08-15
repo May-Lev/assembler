@@ -67,7 +67,7 @@ guide guidanceByIndex(line line, int *i)
 	printError(line.number,"Invalid guidance name: %s", temp);
 	return ERROR_GUIDE;
 }
-bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, line line,int *DC,int i,dataImage** dataImg)
+bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, line line,int *DC,int i,dataImage** dataImg,bool SymbolFlag)
 {
 	bool result = TRUE;
 	int bytes;
@@ -83,18 +83,41 @@ bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, 
 	}
 	if(guidance == ENTRY_GUIDE)
 	{
-		if(label[0] != '\0')
+			int j,k;
+		if(SymbolFlag)
 		{
-			printError(line.number, "Can't define a label to an entry guidance.");
-			result = FALSE; /**/
+			return printError(line.number, "Can't define a label to an entry guidance.");
 		}
-		else
 			result = TRUE;
+		k =i;
+		for (j = 0; line.text[k] && line.text[k] != '\n' && line.text[k] != '\t'
+				 && line.text[k] != ' ' && line.text[k] != EOF; k++, j++)
+			{
+				label[j] = line.text[k];
+			}
+			label[j] = 0;
+			if (!valid_label(label))
+			{
+				printError(line.number, "Invalid label name: %s", label);  /**/
+				return TRUE;
+			}
      }
 	else if(guidance == EXTERN_GUIDE)
-	{
-		/*לבדוק אם יש תוית בכלל?*/
-		addSymbolTable(symbolTable, &line.text[i], 0, "external");
+	{	
+		int j,k;
+		k =i;
+		for (j = 0; line.text[k] && line.text[k] != '\n' && line.text[k] != '\t'
+				 && line.text[k] != ' ' && line.text[k] != EOF; k++, j++)
+			{
+				label[j] = line.text[k];
+			}
+			label[j] = 0;
+			if (!valid_label(label))
+			{
+				printError(line.number, "Invalid external label name: %s", label);
+				return TRUE;
+			}
+			addSymbolTable(symbolTable, &line.text[i], 0, "external");
 	}
 	else if(guidance == ASCIZ_GUIDE)
 	{
@@ -108,7 +131,7 @@ bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, 
 }
 bool Ascizguide(line line, int i,dataImage** dataImg, int *DC)
 {
-	char temp_str[80];
+	char temp[80];
 	char *last = strrchr(line.text, '"');
 	SKIP_WHITE_SPACE(line.text, i)
 	if (line.text[i] != '"')
@@ -121,17 +144,16 @@ bool Ascizguide(line line, int i,dataImage** dataImg, int *DC)
 		for (j = 0;line.text[i] && line.text[i] != '\n' &&
 		       line.text[i] != EOF; i++,j++)
 		{
-				temp_str[j] = line.text[i];
+				temp[j] = line.text[i];
 		}
-		temp_str[last - line.text] = '\0';
-		for(j = 1;temp_str[j] && temp_str[j] != '"'; j++)
-		{
-			/*dataImg[*DC] = temp_str[j];*/
-			addToDataImg(DC,line.text,-1,dataImg);
+		temp[last - line.text] = '\0';
+		for(j = 1;temp[j] && temp[j] != '"'; j++)
+		{			
+			addToDataImg(DC,line.text,0,dataImg,temp,j);
 			(*DC)++;
 		}
-		/*dataImg[*DC] = '\0';*/
-		addToDataImg(DC,line.text,-1,dataImg);
+		temp[j] = '\0';
+		addToDataImg(DC,line.text,0,dataImg,temp,j);
 		(*DC)++;
 	}
 	return TRUE;
@@ -159,9 +181,7 @@ bool DbDhDwguide(line line, int i,dataImage** dataImg, int *DC,int bytes)
 		temp[j] = '\0';
 		if (!isInt(temp))
 			return printError(line.number, "Expected integer for guidance (got '%s')", temp);
-		/*value = strtol(temp, &temp_ptr, 10);
-		dataImg[DC] = value;*/
-		addToDataImg(DC,line.text,bytes,dataImg);
+		addToDataImg(DC,line.text,bytes,dataImg,temp,-1);
 		(*DC)+=bytes;
 		SKIP_WHITE_SPACE(line.text, i)
 		if (line.text[i] == ',')

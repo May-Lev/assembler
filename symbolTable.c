@@ -48,4 +48,29 @@ void printSymbolTable(void* pointer)
 		currNode = currNode->next;
 	}
 }
+int getAdressForLable(char* operand,struct symbolNode** symbolTable)
+{
+	int adress = -1;
+	struct symbolNode *currNode = *symbolTable;
+	while (currNode != NULL)
+	{
+		if(strcmp(currNode->symbol,operand) == 0)
+			adress = currNode->value;
+		currNode = currNode->next;
 
+	}
+	return adress;
+}
+bool isExternSymbol(char* operand,struct symbolNode** symbolTable)
+{
+	struct symbolNode *currNode = *symbolTable;
+	while (currNode != NULL)
+	{
+		if(strcmp(currNode->attribute,"external") == 0 && strcmp(currNode->symbol,operand) == 0)
+			return TRUE;
+		currNode = currNode->next;
+
+	}
+	return FALSE;
+
+}

@@ -17,7 +17,7 @@ typedef struct codeBinR
 /*for I code*/
 typedef struct codeBinI
 {
-	unsigned int immed:16;
+	int immed:16;
 	unsigned int rt:5;
 	unsigned int rs:5;
 	unsigned int opcode:6;
@@ -46,7 +46,7 @@ typedef struct codeImage
 }codeImage;
 
 
-/*typedef struct dataBin8
+typedef struct dataBin8
 {
 	unsigned int number:8;
 }dataBin8;
@@ -57,24 +57,32 @@ typedef struct dataBin32
 typedef struct dataBin16
 {
 	unsigned int number:16;
-}dataBin16;*/
+}dataBin16;
 typedef struct dataImage
 {
 	int adress;
 	char lineText[MAX_LINE];
-	unsigned int bin8:1;
-		/*dataBin32 *bin32;
-		dataBin16 *bin16;*/
+	char binChar;
+    union {
+		dataBin32 *bin32;
+		dataBin16 *bin16;
+		dataBin8 *bin8;
+	}dataBin;
 	struct dataImage* next;
 }dataImage;
 
 
-void addToDataImg(int *DC, char* line, int bytes,struct dataImage** dataImg);
+void addToDataImg(int *DC, char* line, int bytes,struct dataImage** dataImg,char* temp,int j);
 void updateDataTable(void* dataImg, int DCorIC);
-void addToCodeImg(int *IC, char* line,struct codeImage** codeImg);
+int addToCodeImg(int *IC, char* line,struct codeImage** codeImg);
 void printDataTable(void* pointer);
 void printCodeTable(struct codeImage** codeImg, int IC);
+codeBinR * MakeRBin(opcode *op, funct *fun, char** operands);
+codeBinI * MakeIBin(opcode *op, funct *fun, char** operands, int IC,void* symbolTable);
+codeBinJ * MakeJBin(opcode *op, funct *fun, char** operands,void* symbolTable);
+int atoiFunc( char* operands);
 #endif
+
 
 
 

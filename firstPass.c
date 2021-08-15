@@ -40,10 +40,11 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	SKIP_WHITE_SPACE(line.text, i)
 	if(guidance != NONE_GUIDE)        	    /*printf("guidance\n");*/    
 	{	
+
 		if(SymbolFlag && guidance != EXTERN_GUIDE)
 			addSymbolTable(symbolTable, label, *DC, "data");
 		/*addToDataImg(DC,line.text);*/
-		return (guideHandling(guidance,symbolTable,label,line,DC/*גם ic?*/,i,dataImg));
+		return (guideHandling(guidance,symbolTable,label,line,DC/*גם ic?*/,i,dataImg,SymbolFlag));
 	}
 	else
 	{/* or in the guideHandling func*/
@@ -64,8 +65,7 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 		if (!operandsCheck(line, i, operands, &operandCount, instructName))
 			return FALSE;
 		/*addToCodeImg(IC,line.text);*/
-		return(instructHandling(instructName,line,IC,i,codeImg,&op ,(funct*)&fun,operands));
+		return(instructHandling(instructName,line,IC,i,codeImg,&op ,(funct*)&fun,operands,symbolTable));
 	}
-	
-	return TRUE; /**/
+
 }
