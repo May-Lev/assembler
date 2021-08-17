@@ -1,9 +1,5 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
-typedef enum booleans
-{
-	FALSE = 0, TRUE = 1
-} bool;
 
 #define FIRST_IC 100
 #define MAX_LINE 80 
@@ -15,6 +11,12 @@ typedef enum booleans
 #define CODE_ARR_IMG_LENGTH 1500
 #define MAX_OPERANDS_INST 3
 #define INST_MAX_LEN 5
+
+typedef enum booleans
+{
+	FALSE = 0, TRUE = 1
+} bool;
+
 /* Line number and content*/
 typedef struct line
 {
@@ -34,7 +36,7 @@ typedef enum opcode
 	MVHI_OP = 1,
 	MVLO_OP = 1,
 
-	/*I GROUP*/
+	/* I GROUP */
 	ADDI_OP = 10,
 	SUBI_OP = 11,
 	ANDI_OP = 12,
@@ -51,7 +53,7 @@ typedef enum opcode
 	LH_OP = 23,
 	SH_OP = 24,
 
-	/*J GROUP*/
+	/* J GROUP */
 	JMP_OP = 30,
 	LA_OP = 31,
 	CALL_OP = 32,
@@ -61,7 +63,7 @@ typedef enum opcode
 	NONE_OP = -1
 } opcode;
 
-/* by func */
+/* funct */
 typedef enum funct
 {
 	/* OPCODE 0 */
@@ -92,6 +94,7 @@ typedef enum guide
 	NONE_GUIDE = 0	
 }guide;
 
+/* The struct of the symbol table node */
 struct symbolNode
 {
 	char symbol[MAX_LINE];	

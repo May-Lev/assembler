@@ -4,8 +4,15 @@
 #include "helpFuncs.h"
 #include "symbolTable.h"
 #include "firstPass.h"
+#include "secondPass.h"
+
+/* The function checks the integrity of the opened file */
 bool cheakLine();
+
+/* The function goes through every line in the file, in the first and second pass */
 static bool openFile(char *filename);
+
+/*The function iterate over each file*/
 int main(int argc, char *argv[])
 {
 	int i;
@@ -21,10 +28,12 @@ int main(int argc, char *argv[])
 
 static bool openFile(char *filename)
 {
-	int ic = FIRST_IC, dc=0,icf/*,dcf*/;
+	int ic = FIRST_IC, dc=0,icf,lineCount/*,dcf*/;
+	/* Symbol,data and code tables*/
 	dataImage* dataImg = NULL;
 	codeImage* codeImg[CODE_ARR_IMG_LENGTH];
 	struct symbolNode* symbolTable = NULL;
+	externList* externalList = NULL;
 	char *new_filename;
 	FILE *pointer_file;
 	char temp_line[MAX_LINE + 2];
@@ -39,11 +48,13 @@ static bool openFile(char *filename)
 		return FALSE;
 	}
 	line.text = temp_line;
+	/* The for prosess each line in the file */
 	for(line.number = 1; fgets(temp_line, MAX_LINE + 2, pointer_file) != NULL; line.number++)
 	{
+		lineCount = line.number;
 		if(cheakLine(line ,pointer_file))
 		{
-			if(!readLine(line, &ic, &dc, codeImg ,&symbolTable, &dataImg))
+			if(!readLineFirstPass(line, &ic, &dc, codeImg ,&symbolTable, &dataImg))
 			{
 				read_file = FALSE;
 				/*icf = -1;*/
@@ -55,19 +66,35 @@ static bool openFile(char *filename)
 
 	icf = ic;
 	/*dcf = dc;*/
-	/* if first pass didn't fail, start the second pass */
+	/* If the first pass didn't fail, start the second pass */
 	if (read_file)
 	{
 		ic = FIRST_IC;
-		/* Now let's add IC to each DC for each of the data symbols in table (step 1.19) */
+		/* Adding the IC value */
 		updateSymbolTable(symbolTable, icf, "data");
 		updateDataTable(dataImg, icf);
 		/*printSymbolTable(symbolTable);*/
 		/*printCodeTable(codeImg,icf);*/
 		/*printDataTable(dataImg);*/
-		/* start second pass: */
-		rewind(pointer_file); /* Start from beginning of file again */
+		
+		/* Rewind to the beginning of the file */
+		rewind(pointer_file); 
+		/* Prosess each line in the file */
+		for (line.number = 1;line.number <=lineCount ; line.number++)
+		{
+			char label[MAX_LINE];
+			int i = 0;
+			fgets(temp_line, MAX_LINE, pointer_file);
+			SKIP_WHITE_SPACE(temp_line , i)
+			is_label(line,label);
+			if (strlen(label)<1 || temp_line[i] == '.')
+			{
 
+				read_file &= readLineSecondPass(line, &icf, codeImg, &symbolTable,&externalList);
+			}
+		}
+			/*printSymbolTable(symbolTable);*/
+			/*printExternalList(externalList);*/
 	}
 	fclose(pointer_file);
 	return read_file;

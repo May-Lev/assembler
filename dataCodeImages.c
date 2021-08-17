@@ -14,6 +14,7 @@ void addToDataImg(int *DC, char* line, int bytes,struct dataImage** dataImg,char
     struct dataImage *last = *dataImg;
 	for(i = 0;i<strlen(line);i++)
 		new_node->lineText[i] = (char)line[i];
+	/* adding dataBin struct for dh/db/dw guidens, by bytes */
 	switch(bytes)
 	{
 		case 1:
@@ -65,7 +66,7 @@ void updateDataTable(void* dataImg, int DCorIC)
 int addToCodeImg(int *IC, char* line,struct codeImage** codeImg)
 {
 	int i,returnI;
-	struct codeImage* new_node = (struct codeImage*) check_malloc(sizeof(struct codeImage));
+	struct codeImage* new_node = (struct codeImage*) check_malloc(sizeof(struct codeImage));	
 	for(i = 0;i<strlen(line);i++)
 		new_node->lineText[i] = (char)line[i];
 	new_node->adress = *IC;
@@ -103,6 +104,18 @@ void printCodeTable(struct codeImage** codeImg, int IC)
 			printf("%c", codeImg[i]->lineText[j]);
 	}
 	
+}
+void updateBinCodeImg(struct codeImage** codeImg,int ic,int adr,char RIJ)
+{
+	int i;	
+	for(i = FIRST_IC;i<ic;i+=4)
+	{
+		if(RIJ =='J')
+			((codeImg[i]->word).binJ)->address = adr;
+		if(RIJ =='I')
+			((codeImg[i]->word).binI)->immed = adr;
+	}
+
 }
 codeBinR* MakeRBin(opcode *op, funct *fun,char** operands)
 {
@@ -174,7 +187,10 @@ codeBinJ* MakeJBin(opcode *op, funct *fun,char** operands,void* symbolTable)
 				binJOut->address = 0;
 		}
 		else
+		{
+			/*printf("%s\n",*operands);*/
 			binJOut->address = '?';
+		}
 	}
 	return binJOut;
 }
@@ -184,4 +200,20 @@ int atoiFunc(char* operands)
 	str[0] = operands[1];
 	str[1] = operands[2];
 	return atoi(str);
+}
+int getAdressCodeImg(struct codeImage** codeImg,char* text,int ic)
+{
+	int adress = -1,i;
+	for(i = FIRST_IC;i<ic;i+=4)
+	{
+		/*printf("%s %s", text,codeImg[i]->lineText);*/
+		if(strcmp(text,codeImg[i]->lineText)==0)
+		{
+		adress = codeImg[i]->adress;
+		return adress;	
+		}
+	}
+	
+	return adress;
+
 }

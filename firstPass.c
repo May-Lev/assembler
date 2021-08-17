@@ -7,16 +7,17 @@
 #include "instructions.h"
 #include "dataCodeImages.h"
 #include "symbolTable.h"
+
 bool SymbolFlag = FALSE;
-bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode** symbolTable,dataImage** dataImg)
+bool readLineFirstPass(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode** symbolTable,dataImage** dataImg)
 {
 	int i = 0;
 	char label[MAX_LINE];	
 	guide guidance;
 	SymbolFlag = FALSE;
 	SKIP_WHITE_SPACE(line.text , i)
-    if(isComment(line , i))
-                            /*printf("empty or comment\n");*/
+	/* Empty line or a comment*/
+   	 if(isComment(line , i))
 		return TRUE;
     if(is_label(line,label))
 	    return FALSE;
@@ -26,29 +27,26 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 	}
 	if (label[0] != '\0')
 	{
+		/*Raise a flag, symbol was found */
 		SymbolFlag = TRUE;
-									         	/*printf("label ");*/
-		for (; line.text[i] != ':'; i++); /* Continue with text after the symbol */
+		/* Continue with text after the symbol*/							         	
+		for (; line.text[i] != ':'; i++); 
 			i++;
 	}
 	SKIP_WHITE_SPACE(line.text, i)
 	if (line.text[i] == '\n')
 		return TRUE;
-		
-	/* Check if it's an guidance (starting with '.') */
+	/* Checks if there is a guidance (starts with '.') */
 	guidance = guidanceByIndex(line, &i);
 	SKIP_WHITE_SPACE(line.text, i)
-	if(guidance != NONE_GUIDE)        	    /*printf("guidance\n");*/    
+	if(guidance != NONE_GUIDE)        	  
 	{	
-
 		if(SymbolFlag && guidance != EXTERN_GUIDE)
 			addSymbolTable(symbolTable, label, *DC, "data");
-		/*addToDataImg(DC,line.text);*/
-		return (guideHandling(guidance,symbolTable,label,line,DC/*גם ic?*/,i,dataImg,SymbolFlag));
+		return (guideHandling(guidance,symbolTable,label,line,DC,i,dataImg,SymbolFlag));
 	}
-	else
-	{/* or in the guideHandling func*/
-								 /* instructions */
+	else	 /* It's an instruction */
+	{		
 		int op , fun, j,operandCount = 0;
 		char instructName[INST_MAX_LEN];
 		char* operands[MAX_OPERANDS_INST];
@@ -64,8 +62,6 @@ bool readLine(line line, int *IC, int *DC, codeImage** codeImg,struct symbolNode
 		is_opcode(instructName, &op ,(funct*)&fun);
 		if (!operandsCheck(line, i, operands, &operandCount, instructName))
 			return FALSE;
-		/*addToCodeImg(IC,line.text);*/
 		return(instructHandling(instructName,line,IC,i,codeImg,&op ,(funct*)&fun,operands,symbolTable));
 	}
-
 }

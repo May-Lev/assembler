@@ -84,6 +84,7 @@ bool instructHandling(char* instructName, line line,int *IC,int i,codeImage** co
 		}
 		binJOut = MakeJBin(op,fun,operands,symbolTable);
 	}
+	strtok(line.text + i, " \n\t");
 	returnI = addToCodeImg(IC,line.text,codeImg);
 	switch (RIJ)
 	{

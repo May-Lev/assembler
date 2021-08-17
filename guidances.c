@@ -83,41 +83,28 @@ bool guideHandling(guide guidance,struct symbolNode** symbolTable, char* label, 
 	}
 	if(guidance == ENTRY_GUIDE)
 	{
-			int j,k;
 		if(SymbolFlag)
-		{
 			return printError(line.number, "Can't define a label to an entry guidance.");
-		}
-			result = TRUE;
-		k =i;
-		for (j = 0; line.text[k] && line.text[k] != '\n' && line.text[k] != '\t'
-				 && line.text[k] != ' ' && line.text[k] != EOF; k++, j++)
-			{
-				label[j] = line.text[k];
-			}
-			label[j] = 0;
-			if (!valid_label(label))
-			{
-				printError(line.number, "Invalid label name: %s", label);  /**/
-				return TRUE;
-			}
+		result = TRUE;
      }
 	else if(guidance == EXTERN_GUIDE)
 	{	
 		int j,k;
 		k =i;
+		
 		for (j = 0; line.text[k] && line.text[k] != '\n' && line.text[k] != '\t'
 				 && line.text[k] != ' ' && line.text[k] != EOF; k++, j++)
 			{
 				label[j] = line.text[k];
 			}
-			label[j] = 0;
+			label[j] = '\0';
 			if (!valid_label(label))
 			{
 				printError(line.number, "Invalid external label name: %s", label);
 				return TRUE;
 			}
-			addSymbolTable(symbolTable, &line.text[i], 0, "external");
+			strtok(line.text + i, "\n");
+			addSymbolTable(symbolTable, label, 0, "external");
 	}
 	else if(guidance == ASCIZ_GUIDE)
 	{

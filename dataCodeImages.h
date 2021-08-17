@@ -3,7 +3,7 @@
 #include "globals.h"
 
 
-/*for R code*/
+/* The division of bits for R instructions*/
 typedef struct codeBinR
 {
 	unsigned int unuse:6;
@@ -14,7 +14,7 @@ typedef struct codeBinR
 	unsigned int opcode:6;
 }codeBinR;
 
-/*for I code*/
+/* The division of bits for I instructions*/
 typedef struct codeBinI
 {
 	int immed:16;
@@ -23,7 +23,7 @@ typedef struct codeBinI
 	unsigned int opcode:6;
 }codeBinI;
 
-/*for J code*/
+/* The division of bits for J instructions*/
 typedef struct codeBinJ
 {
 	unsigned int address:25;
@@ -31,7 +31,7 @@ typedef struct codeBinJ
 	unsigned int opcode:6;
 }codeBinJ;
 
-
+/* The division of bits for the code image */
 typedef struct codeImage
 {
 	int adress;	
@@ -45,7 +45,6 @@ typedef struct codeImage
 	} word;
 }codeImage;
 
-
 typedef struct dataBin8
 {
 	unsigned int number:8;
@@ -58,6 +57,7 @@ typedef struct dataBin16
 {
 	unsigned int number:16;
 }dataBin16;
+/* The division of bits for the data image */
 typedef struct dataImage
 {
 	int adress;
@@ -71,16 +71,22 @@ typedef struct dataImage
 	struct dataImage* next;
 }dataImage;
 
-
+/* The function adds new tab for the data image */
 void addToDataImg(int *DC, char* line, int bytes,struct dataImage** dataImg,char* temp,int j);
+/* The function adds the final IC value to the data image */
 void updateDataTable(void* dataImg, int DCorIC);
+/* The function adds new tab for the code image */
 int addToCodeImg(int *IC, char* line,struct codeImage** codeImg);
 void printDataTable(void* pointer);
 void printCodeTable(struct codeImage** codeImg, int IC);
+/* The function creates codeBin structure */
 codeBinR * MakeRBin(opcode *op, funct *fun, char** operands);
 codeBinI * MakeIBin(opcode *op, funct *fun, char** operands, int IC,void* symbolTable);
 codeBinJ * MakeJBin(opcode *op, funct *fun, char** operands,void* symbolTable);
-int atoiFunc( char* operands);
+/* The function converts numbers from string to integer */
+int atoiFunc(char* operands);
+int getAdressCodeImg(struct codeImage** codeImg,char* text,int ic);
+void updateBinCodeImg(struct codeImage** codeImg,int ic,int adr,char RIJ);
 #endif
 
 

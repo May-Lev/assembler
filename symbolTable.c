@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include "helpFuncs.h"
 #include "globals.h" 
-
+#include "symbolTable.h"
 
 void addSymbolTable(struct symbolNode** symbolTable, char* lable, int DCorIC, char* attr)
 {
@@ -55,7 +55,10 @@ int getAdressForLable(char* operand,struct symbolNode** symbolTable)
 	while (currNode != NULL)
 	{
 		if(strcmp(currNode->symbol,operand) == 0)
+		{
 			adress = currNode->value;
+			return adress;
+		}
 		currNode = currNode->next;
 
 	}
@@ -72,5 +75,51 @@ bool isExternSymbol(char* operand,struct symbolNode** symbolTable)
 
 	}
 	return FALSE;
+}
+struct symbolNode* isSymbolInTable(struct symbolNode** symbolTable,char* labelEntr)
+{
+	struct symbolNode *currNode = *symbolTable;
+	while (currNode != NULL)
+	{
+		if(strcmp(currNode->symbol,labelEntr) == 0)
+			return currNode;
+		currNode = currNode->next;
+
+	}
+	return NULL;
+}
+void addExternLabel(externList** externalList, char* operand, int adress)
+{
+	int i;
+	struct externList* new_node = (struct externList*) check_malloc(sizeof(struct externList));
+	struct externList *last = *externalList;
+	for(i = 0;i<strlen(operand);i++)
+		new_node->label[i] = (char)operand[i];
+	new_node->adress = adress;
+    new_node->next = NULL;
+    if (*externalList == NULL)
+    {
+       *externalList = new_node;
+       return;
+    }  
+    while (last->next != NULL)
+        last = last->next;
+    last->next = new_node;
+    return;   
+
+}
+void printExternalList(void * pointer)
+{
+	int i;
+	struct externList *currNode = pointer;
+	while (currNode != NULL)
+	{
+
+		for(i = 0; i<strlen(currNode->label); i++)
+			printf("%c", currNode->label[i]);
+		printf(" %d\n", currNode->adress);
+		currNode = currNode->next;
+	}
+
 
 }
