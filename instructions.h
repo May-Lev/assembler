@@ -1,11 +1,10 @@
-
 #ifndef _INSTRUCTIONS_H
 #define _INSTRUCTIONS_H
 #include "globals.h"
-#include "instructions.h"
 #include "dataCodeImages.h"
 
-/*bool RIJInstruct(line line, int i,codeImage** codeImg, int *IC,char RIJ);*/
+/* The function gets an instruction and process it according to the type of instruction. Returns false if failed/ wrong format of instruction. +addToCodeImg */
 bool instructHandling(char* instructName, line line,int *IC,int i,codeImage** codeImg,opcode *op, funct *fun, char ** operands,struct symbolNode** symbolTable);
+/* checks registers with two digits name (for example, 31$) */
 bool cheakLongReg(char **operands,int j);
 #endif

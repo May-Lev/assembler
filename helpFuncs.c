@@ -7,7 +7,7 @@
 #include "opcode.h" 
 #include "guidances.h"
 #include "globals.h" 
-#define ERR_OUTPUT_FILE stderr
+
 bool printError(int lineNum, char* error, ...)
 {
 	va_list args; 
@@ -15,15 +15,13 @@ bool printError(int lineNum, char* error, ...)
 	va_start(args, error);
 	vfprintf(stdout, error,args);
 	va_end(args);
-	fprintf(stdout, "\n");
+	fprintf(stdout, "\n"); /* Prints to the stdout */
 	return FALSE;
-
-
 }
 void *check_malloc(long size)
 {
-	void *ptr = malloc(size);
-	if (ptr == NULL)
+	void *ptr = malloc(size+1);
+	if (ptr == NULL) /* malloc failed */
 	{
 		printf("Error: Fatal: Memory allocation failed.");
 		exit(1);
@@ -31,16 +29,33 @@ void *check_malloc(long size)
 	return ptr;
 }
 
-char *mallocName(char *s0)
+char *checkFileName(char *str)
 {
-	char *str;
-	char* exten = strchr(s0,'.');
-	if(!exten || strcmp(exten,".as")!=0 ||(strcmp(exten,".as")==0 &&strlen(s0) ==3))   /*File extension/name 				is not ".as"/valid */
+	char *stringName;
+	char* exten = strchr(str,'.');
+	if(!exten || strcmp(exten,".as")!=0 ||(strcmp(exten,".as")==0 &&strlen(str) ==3)) /*File extension/name 				is not ".as"/valid */
 		return NULL;
-	str = (char *)check_malloc(strlen(s0));
-	strcpy(str, s0);
-	return str;
+	stringName = (char *)check_malloc(strlen(str)); /* Allocate memory for the file name */
+	strcpy(stringName, str);
+	return stringName;
 }
+char *addExtensionToFile( char *filename, char *fileExtension)
+{
+	char *retStr;
+    char *lastExt;
+	char *newFileName;
+    if ((retStr = malloc(strlen (filename) + 1)) == NULL) return FALSE;
+   	strcpy (retStr, filename);
+    lastExt = strrchr(retStr, '.');
+   	if (lastExt != NULL)
+       	*lastExt = '\0';
+	/* Allocate memory for the file name and extension */
+	newFileName  = (char*)check_malloc(strlen(retStr) + strlen(fileExtension) + 1);
+	strcpy(newFileName, retStr);
+	strcat(newFileName, fileExtension);
+	return newFileName;
+}
+
 bool isComment(line line, int i)
 {
 	if (!line.text[i] || line.text[i] == '\n' || line.text[i] == EOF || line.text[i] == ';')
@@ -50,16 +65,16 @@ bool isComment(line line, int i)
 
 bool is_label(line line , char* label)
 {
-	int j=0 , i=0 ;
+	int j=0, i=0;
 	SKIP_WHITE_SPACE(line.text , i)
 	for (; line.text[i] && line.text[i] != ':' && line.text[i] != EOF && i <= MAX_LINE; i++, j++)
 		label[j] = line.text[i];
 	label[j] = '\0';
-	if (line.text[i] == ':')
+	if (line.text[i] == ':')/* Label mast end with colon */
 	{
-		if (!valid_label(label))
+		if (!valid_label(label)) /* Is label valid */
 		{
-			printError(line.number, "Invalid label name - cannot be longer than 32 chars, may only start with letter be alphanumeric.");
+			printError(line.number, "Invalid label name - cannot be longer than 32 chars, may only start with letter be alphanumeric, and cannot be a saved word.");
 			label[0] = '\0';
 			return TRUE;
 		}
@@ -69,43 +84,38 @@ bool is_label(line line , char* label)
 	return FALSE;
 }
 
-bool valid_label(char *a_label)
+bool valid_label(char *label)
 {
-	return(a_label[0] && strlen(a_label) <= 31 && isalpha(a_label[0]) && check_digit_alpha(a_label + 1) &&
-	       (!check_reserved_word(a_label)));	
+	if(label[0] && label[0]=='$')
+		label = label+1;
+	return(label[0] && strlen(label) <= 31 && isalpha(label[0]) && checkDigitAlpha(label) &&
+	       (!savedWord(label)));	
 }
-	   
-bool check_digit_alpha(char *str)
+	
+bool checkDigitAlpha(char *str)
 {
 	int i;
-	for (i=0 ; str[i]; i++) {
-		if ((!isalpha(str[i])) && (!isdigit(str[i]))) 
+	for (i=0 ; str[i]; i++)
+	{
+		if ((!isalpha(str[i])) && (!isdigit(str[i]))) /* Not an alphanumeric char */
 			return FALSE;
 	}
 	return TRUE;
 }
 
-bool check_reserved_word(char *a_label)
+bool savedWord(char *label)
 {
-	int op , fun , gud, reg;
-	is_opcode(a_label, &op ,(funct*)&fun);
-	is_guidance(a_label, ((guide*)&gud));
-	is_register(a_label, &reg);
-	if ((op != NONE_OP ) || (gud != NONE_GUIDE) || (reg != NONE_REG))/*is register?*/
+	int op , fun , gud;
+	is_opcode(label, &op ,(funct*)&fun);
+	is_guidance(label, ((guide*)&gud));
+	if ((op != NONE_OP ) || (gud != NONE_GUIDE)) /* The word is already used, an instruction/guidance name */
 		return TRUE;
-
 	return FALSE;
 }
-void is_register(char *a_label, int *reg)
-{
-/*get_register_by_name*/
-	*reg = NONE_REG;
-}
-
 bool isInt(char *str)
 {
 	int i = 0;
-	if (str[0] == '-' || str[0] == '+')
+	if (str[0] == '-' || str[0] == '+') /* A signed number */
 		str++;
 	for (; str[i]; i++)
 	{
@@ -114,7 +124,6 @@ bool isInt(char *str)
 	}
 	return i > 0;
 }
-
 bool operandsCheck(line line, int i, char **operands, int *operandCount, char *instructName)
 {
 	int j;
@@ -129,9 +138,9 @@ bool operandsCheck(line line, int i, char **operands, int *operandCount, char *i
 	}
 	for (*operandCount = 0; line.text[i] != EOF && line.text[i] != '\n' && line.text[i];)
 	{
-		if (*operandCount == 3)
+		if (*operandCount == MAX_OPERANDS_INST)/* Too many operands */
 		{
-			printError(line.number, "Too many operands for operation (got >%d)", *operandCount);
+			printError(line.number, "Too many operands for operation (more than >%d)", *operandCount);
 			free(operands[0]);
 			free(operands[1]);
 			free(operands[2]);
@@ -171,5 +180,4 @@ bool operandsCheck(line line, int i, char **operands, int *operandCount, char *i
 	}
 	return TRUE;
 }
-
 

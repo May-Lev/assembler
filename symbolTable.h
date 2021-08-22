@@ -1,21 +1,26 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 #include "globals.h"
-#define SKIP_WHITE_SPACE(string, index) \
-        for (;string[(index)] && (string[(index)] == '\t' || string[(index)] == ' '); (++(index)))\
-        ;
-typedef struct externList
+ 
+/* The structure of a single node of the external or entry list */
+typedef struct exorEnList
 {
 	int adress;
 	char label[MAX_LINE];
-	struct externList* next;
-}externList;
+	struct exorEnList* next;
+}exorEnList;
+
+/* The function adds new node for the symbol table */
 void addSymbolTable(struct symbolNode** symbolTable, char* label, int DCorIC, char* attr);
+/* The function adds the final IC value to the symbol table after the first pass */
 void updateSymbolTable(void* symbolTable, int DCorIC, char* attr);
-void printSymbolTable(void* pointer);
+/* A get function, returns int of address to a specific label */
 int getAdressForLable(char* operand, struct symbolNode** symbolTable);
+/* The function returns wather a label is external or not */
 bool isExternSymbol(char* operand,struct symbolNode** symbolTable);
+/* The function returns wather a label is in the symbol table or not (returns the symbol node or null) */
 struct symbolNode* isSymbolInTable(struct symbolNode** symbolTable,char* val);
-void addExternLabel(externList** externalList, char* operand, int adress);
-void printExternalList(void * pointer);
+/* The function adds new node for the external/entry list */
+void addExorEntLabel(exorEnList** extorEntList, char* operand, int adress);
+
 #endif

@@ -3,14 +3,16 @@
 
 #define FIRST_IC 100
 #define MAX_LINE 80 
-#define NONE_REG -1
 #define MAX_REG_NUM 31
 #define DB_BYTES 1
 #define DH_BYTES 2
 #define DW_BYTES 4
+#define IC_JUMP 4
 #define CODE_ARR_IMG_LENGTH 1500
 #define MAX_OPERANDS_INST 3
 #define INST_MAX_LEN 5
+#define NO_ADDRESS -1
+#define BYTES_IN_LINE 4 /* In writeObjFile */
 
 typedef enum booleans
 {
@@ -103,8 +105,4 @@ struct symbolNode
     	struct symbolNode* next;
 }symbolNode;
 
-
-
-
 #endif
-

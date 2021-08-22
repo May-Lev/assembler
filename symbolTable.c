@@ -10,15 +10,14 @@
 void addSymbolTable(struct symbolNode** symbolTable, char* lable, int DCorIC, char* attr)
 {
 	int i;
-	struct symbolNode* new_node = (struct symbolNode*) malloc(sizeof(struct symbolNode));
+	struct symbolNode* new_node = (struct symbolNode*)check_malloc(sizeof(struct symbolNode));
     	struct symbolNode *last = *symbolTable;
-	/*printf("%s",lable);*/
 	for(i = 0;i<strlen(lable);i++)
 		new_node->symbol[i] = (char)lable[i];
 	new_node->value = DCorIC;
 	new_node->attribute = attr;
     new_node->next = NULL;
-    if (*symbolTable == NULL)
+    if (*symbolTable == NULL)/* First node */
     {
        *symbolTable = new_node;
        return;
@@ -26,43 +25,29 @@ void addSymbolTable(struct symbolNode** symbolTable, char* lable, int DCorIC, ch
     while (last->next != NULL)
         last = last->next;
     last->next = new_node;
-    return;   
 }
 void updateSymbolTable(void* symbolTable, int DCorIC, char* attr)
 {
 	struct symbolNode* currNode;
 	for (currNode = symbolTable; currNode != NULL; currNode = currNode->next)
-		if(!strcmp(currNode->attribute, attr))
+		if(!strcmp(currNode->attribute, attr)) /* Adds the value only for a specific attribute */
 			currNode->value += DCorIC;
 }
-void printSymbolTable(void* pointer)
-{
-	int i;
-	struct symbolNode *currNode = pointer;
-	while (currNode != NULL)
-	{
-		for(i = 0; i<strlen(currNode->symbol); i++)
-			printf("%c", currNode->symbol[i]);
-		printf(" %d ", currNode->value);
-		printf(" %s\n ", currNode->attribute);
-		currNode = currNode->next;
-	}
-}
+
 int getAdressForLable(char* operand,struct symbolNode** symbolTable)
 {
-	int adress = -1;
+	int adress = NO_ADDRESS;
 	struct symbolNode *currNode = *symbolTable;
 	while (currNode != NULL)
 	{
-		if(strcmp(currNode->symbol,operand) == 0)
+		if(strcmp(currNode->symbol,operand) == 0) /* Adress was found */
 		{
 			adress = currNode->value;
 			return adress;
 		}
 		currNode = currNode->next;
-
 	}
-	return adress;
+	return adress; /* Adress was not found */
 }
 bool isExternSymbol(char* operand,struct symbolNode** symbolTable)
 {
@@ -70,9 +55,8 @@ bool isExternSymbol(char* operand,struct symbolNode** symbolTable)
 	while (currNode != NULL)
 	{
 		if(strcmp(currNode->attribute,"external") == 0 && strcmp(currNode->symbol,operand) == 0)
-			return TRUE;
+			return TRUE; /* Symbol was found and it is external */
 		currNode = currNode->next;
-
 	}
 	return FALSE;
 }
@@ -81,45 +65,27 @@ struct symbolNode* isSymbolInTable(struct symbolNode** symbolTable,char* labelEn
 	struct symbolNode *currNode = *symbolTable;
 	while (currNode != NULL)
 	{
-		if(strcmp(currNode->symbol,labelEntr) == 0)
+		if(strcmp(currNode->symbol,labelEntr) == 0) /* Symbol was found */
 			return currNode;
 		currNode = currNode->next;
-
 	}
 	return NULL;
 }
-void addExternLabel(externList** externalList, char* operand, int adress)
+void addExorEntLabel(exorEnList** extorEntList, char* operand, int adress)
 {
 	int i;
-	struct externList* new_node = (struct externList*) check_malloc(sizeof(struct externList));
-	struct externList *last = *externalList;
+	struct exorEnList* new_node = (struct exorEnList*)check_malloc(sizeof(struct exorEnList));
+	struct exorEnList *last = *extorEntList;
 	for(i = 0;i<strlen(operand);i++)
 		new_node->label[i] = (char)operand[i];
 	new_node->adress = adress;
     new_node->next = NULL;
-    if (*externalList == NULL)
+    if (*extorEntList == NULL) /* First node */
     {
-       *externalList = new_node;
+       *extorEntList = new_node;
        return;
     }  
     while (last->next != NULL)
         last = last->next;
     last->next = new_node;
-    return;   
-
-}
-void printExternalList(void * pointer)
-{
-	int i;
-	struct externList *currNode = pointer;
-	while (currNode != NULL)
-	{
-
-		for(i = 0; i<strlen(currNode->label); i++)
-			printf("%c", currNode->label[i]);
-		printf(" %d\n", currNode->adress);
-		currNode = currNode->next;
-	}
-
-
 }

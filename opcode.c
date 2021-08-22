@@ -6,14 +6,15 @@
 #include "opcode.h"
 #include "helpFuncs.h"
 
-/*a struct of a opcode tabel */
-struct divi_opcode {
+/* A struct of a opcode tabel */
+struct divi_opcode
+{
 	char *name_op;
 	opcode op;
 	funct fun;
 };
 
-/*a tabel for opcode string*/
+/* A tabel for opcode string */
 static struct divi_opcode opcode_tabel[] =
 {
 	{"add",ADD_OP, ADD_FUNCT},
@@ -46,15 +47,15 @@ static struct divi_opcode opcode_tabel[] =
 	{NULL, NONE_OP, NONE_FUNCT}
 };
 
-/*check if the word is opcode*/
 void is_opcode(char *name_op, opcode *get_op, funct *get_fun)
 {
 	struct divi_opcode *a;
+	/* If name wasnt found in divi_opcode */
 	*get_op = NONE_OP;
 	*get_fun = NONE_FUNCT;
 	for (a = opcode_tabel; a->name_op != NULL; a++)
 	{
-		if (strcmp( a->name_op , name_op) == 0)
+		if (strcmp(a->name_op,name_op) == 0)
 		{
 			*get_op = a->op;
 			*get_fun = a->fun;
